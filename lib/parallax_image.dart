@@ -238,14 +238,22 @@ class _RenderParallax extends RenderProxyBox {
   @override
   void attach(PipelineOwner owner) {
     super.attach(owner);
-    _scrollPosition.addListener(markNeedsPaint);
+    try {
+      _scrollPosition.addListener(markNeedsPaint);
+    } catch(e) {}
   }
 
   @override
   void detach() {
     _painter?.dispose();
     _painter = null;
-    _scrollPosition.removeListener(markNeedsPaint);
+    // when used with draggables in lists it is possible that they
+    // are disposed before detach is called this then ignores the fact
+    // that the scrollPosition is invalid and throws an exception
+    try {
+      _scrollPosition.removeListener(markNeedsPaint);
+    } catch(e) {
+    }
     super.detach();
     markNeedsPaint();
   }
